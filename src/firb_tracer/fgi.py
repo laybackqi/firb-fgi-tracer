@@ -52,11 +52,24 @@ class Finding:
     round: int = 0  # the round in which it was found (0 = a government itself)
 
 
+def _merge(a: EffectiveHolding, b: EffectiveHolding) -> EffectiveHolding:
+    """Combine two holdings by the same holder in the same entity.
+
+    This happens when an existing stake and a proposed purchase are recorded
+    as separate lines. Each measure is added up, then the highest is taken.
+    """
+    measures = {k: min(100.0, a.measures.get(k, 0.0) + b.measures.get(k, 0.0))
+                for k in a.measures.keys() | b.measures.keys()}
+    basis, pct = max(measures.items(), key=lambda item: item[1])
+    return EffectiveHolding(a.holder, a.held, pct, basis, measures, a.notes + b.notes)
+
+
 def _index(holdings: list[EffectiveHolding]) -> dict[str, dict[str, EffectiveHolding]]:
-    """held -> holder -> effective holding."""
+    """held -> holder -> effective holding (several lines by one holder are combined)."""
     index: dict[str, dict[str, EffectiveHolding]] = defaultdict(dict)
     for eh in holdings:
-        index[eh.held][eh.holder] = eh
+        earlier = index[eh.held].get(eh.holder)
+        index[eh.held][eh.holder] = eh if earlier is None else _merge(earlier, eh)
     return index
 
 
