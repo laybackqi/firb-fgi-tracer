@@ -1,0 +1,41 @@
+# T04: two Chinese SASACs, each below 20%, in the same company.
+# Expected result (rules document, test T04): D is a foreign government
+# investor under FATR s 17(1)(b)(i), because the two SASACs are associates
+# under FATA s 6(1)(l)(i) and together hold 22%.
+
+title: "T04 - Two municipal SASACs below 20% each"
+
+entities:
+  - id: sz_sasac
+    name: "Shenzhen SASAC (深圳市国资委)"
+    kind: government
+    country: CN
+    gov_status: FG
+    gov_reason: >-
+      FATA s 4 'foreign government' para (c): a special body directly under,
+      and part of the body politic of, the Shenzhen Municipal People's Government.
+
+  - id: gz_sasac
+    name: "Ganzhou SASAC (赣州市国资委)"
+    kind: government
+    country: CN
+    gov_status: FG
+    gov_reason: >-
+      FATA s 4 'foreign government' para (c): part of the body politic of the
+      Ganzhou Municipal People's Government.
+
+  - id: company_d
+    name: "D Co"
+    kind: corporation
+    country: CN
+
+holdings:
+  - holder: sz_sasac
+    held: company_d
+    shares_pct: 12
+    source: "Hypothetical case, rules document Part 2 Q4"
+
+  - holder: gz_sasac
+    held: company_d
+    shares_pct: 10
+    source: "Hypothetical case, rules document Part 2 Q4"
