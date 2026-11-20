@@ -102,6 +102,12 @@ class Entity:
     # Evidence of non-equity control, e.g. "party_committee_pre_review".
     # On their own these only trigger a prompt for human review (R8).
     control_indicators: list[str] = field(default_factory=list)
+    # FATR s 17(2): the user confirms this entity runs a collective investment
+    # scheme in which no member can influence individual investment decisions
+    # (s 17(2)(b)) and governments hold only as members (s 17(2)(c)). The
+    # engine applies the exception only if the entity is caught solely by the
+    # 40% multi-country test (s 17(2)(a)) (rule R5).
+    fund_exemption_claimed: bool = False
     note: str = ""
 
     @property
