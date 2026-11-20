@@ -70,14 +70,19 @@ def trace_interest(
     while changed:
         changed = False
         for entity_id in graph.entities:
-            if entity_id in attributed or entity_id == target or entity_id not in index:
+            if entity_id == person or entity_id == target or entity_id not in index:
                 continue
-            pct, _ = group_interest(list(attributed), index[entity_id])
+            if "FATA s 19" in attributed.get(entity_id, ""):
+                continue
+            pct, _ = group_interest([m for m in attributed if m != entity_id], index[entity_id])
             if meets(pct, SUBSTANTIAL):
-                attributed[entity_id] = (
-                    f"FATA s 19: the group holds {pct:g}% of it, so its holdings are attributed in full"
-                )
-                changed = True
+                s19 = f"FATA s 19: the group holds {pct:g}% of it, so its holdings are attributed in full"
+                if entity_id in attributed:
+                    # Already an associate; record tracing as a second ground.
+                    attributed[entity_id] = f"{s19}; also {attributed[entity_id]}"
+                else:
+                    attributed[entity_id] = s19
+                    changed = True
 
     # 3. Count each block of target shares once.
     held = index.get(target, {})

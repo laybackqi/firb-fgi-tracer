@@ -51,9 +51,10 @@ class EffectiveHolding:
         """
         m = self.measures
         securities = m.get(SECURITIES, 0.0)
+        # Securities first: on a tie, the report names the plainest measure.
         return {
-            LIMB_VOTING: max(m.get(VOTING, 0.0), m.get(VETO, 0.0)),
             LIMB_SECURITIES: securities,
+            LIMB_VOTING: max(m.get(VOTING, 0.0), m.get(VETO, 0.0)),
             LIMB_RIGHTS: m.get(RIGHTS, securities),
             LIMB_DISTRIBUTION: max(m.get(DISTRIBUTION, 0.0), m.get(DISCRETIONARY, 0.0)),
         }
