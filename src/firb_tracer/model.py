@@ -16,7 +16,7 @@ trustee of two different trusts is two separate nodes (rule R24).
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field, fields, replace
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -133,6 +133,34 @@ class Holding:
     management_influence: bool = False  # FATR s 16(c), relevant to the target only
     concert_with: list[str] = field(default_factory=list)  # FATA s 6(1)(b)
     source: str = ""  # primary source of the figures (R18)
+    proposed: bool = False  # part of the transaction being assessed, not yet held
+
+
+class Action(str, Enum):
+    """The kind of action being assessed under FATR s 56(1)."""
+
+    ACQUIRE_INTEREST = "acquire_interest"  # s 56(1)(a) and (c)(ii)
+    START_BUSINESS = "start_business"  # s 56(1)(b); FATA s 8B
+    ACQUIRE_TENEMENT = "acquire_tenement"  # s 56(1)(c)(i)
+
+
+@dataclass
+class Transaction:
+    """The proposed action, and the facts about it the user confirms.
+
+    Each flag records the user's own judgment of a fact the engine cannot
+    read from an ownership table (R1, R17).
+    """
+
+    action: Action = Action.ACQUIRE_INTEREST
+    target_is_australian: bool = True  # an Australian entity or business
+    target_is_mining_entity: bool = False  # mining, production or exploration entity
+    business_arrangement: bool = False  # FATR s 16(b): a legal arrangement relating to the businesses
+    new_wholly_owned_subsidiary: bool = False  # FATR s 56(3)
+    offshore_non_material: bool = False  # FATR s 56(4): user confirms (a)-(d)
+    consortium_initial_interest: bool = False  # FATR s 56(5)
+    passive_increase: bool = False  # FATA s 18A: no new securities acquired, s 56(6)-(7)
+    note: str = ""
 
 
 @dataclass
@@ -155,6 +183,11 @@ class OwnershipGraph:
     holdings: list[Holding]
     buyer: str | None = None  # the acquirer, for the notification test
     target: str | None = None  # the Australian target, for the notification test
+    transaction: Transaction | None = None
+
+    def without_proposed(self) -> "OwnershipGraph":
+        """The structure as it stands before the transaction."""
+        return replace(self, holdings=[h for h in self.holdings if not h.proposed])
 
     def holders_of(self, entity_id: str) -> list[Holding]:
         """Holdings IN this entity (who sits above it)."""
@@ -284,10 +317,18 @@ def _holding(raw: dict[str, Any]) -> Holding:
 
 def from_dict(data: dict[str, Any]) -> OwnershipGraph:
     """Build a graph from parsed YAML or JSON."""
-    allowed = {"title", "buyer", "target", "entities", "holdings"}
+    allowed = {"title", "buyer", "target", "entities", "holdings", "transaction"}
     unknown = set(data) - allowed
     if unknown:
         raise InputError(f"top level: unknown field(s) {sorted(unknown)}")
+    transaction = None
+    if data.get("transaction") is not None:
+        raw = data["transaction"]
+        _check_keys(raw, Transaction, "transaction")
+        raw = dict(raw)
+        if "action" in raw:
+            raw["action"] = _enum(Action, raw["action"], "transaction")
+        transaction = Transaction(**raw)
     entities: dict[str, Entity] = {}
     for raw in data.get("entities", []):
         entity = _entity(raw)
@@ -301,6 +342,7 @@ def from_dict(data: dict[str, Any]) -> OwnershipGraph:
         holdings=holdings,
         buyer=data.get("buyer"),
         target=data.get("target"),
+        transaction=transaction,
     )
 
 
