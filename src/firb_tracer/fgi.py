@@ -82,6 +82,11 @@ def _profiles(graph: OwnershipGraph, findings: dict[str, Finding]) -> dict[str, 
     return profiles
 
 
+def gov_profiles(graph: OwnershipGraph, findings: dict[str, Finding]) -> dict[str, GovProfile]:
+    """Public form of _profiles, for later steps that need s 6(1)(l)."""
+    return _profiles(graph, findings)
+
+
 def _test_single(entity_id: str, graph, held, findings, profiles, rnd) -> Finding | None:
     """Paragraphs (b)-(d)(i), and (e) read with them."""
     kind = graph.entities[entity_id].kind
