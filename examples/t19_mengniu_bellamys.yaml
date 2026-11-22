@@ -1,0 +1,103 @@
+# T19 (real structure): China Mengniu Dairy and an acquisition of Bellamy's Australia.
+#
+# Upstream figures: China Mengniu Dairy Company Limited, Annual Report 2025,
+# "Substantial shareholders" table and footnotes, as at 31 December 2025
+# (issued shares 3,878,902,513). Percentages below are each holder's direct
+# shares divided by that total. The transaction: Mengniu's 2019 scheme to
+# acquire 100% of Bellamy's Australia Ltd (Treasurer's media release; Allens).
+# This file applies the CURRENT law and the 2025 shareholding to that deal:
+# an illustration of the method, not an account of the 2019 approval.
+#
+# What it teaches (rule R18): no COFCO company holds 20% of Mengniu in its
+# own name. The largest, COFCO Dairy Investments, holds 14.18% (550,146,260
+# shares, footnote 7). The report's table shows it at 24.20%, but that is a
+# Hong Kong "deemed interest": it adds subsidiaries' shares and shares under a
+# concert agreement (SFO s 317), so the table's rows overlap. Arla Foods also
+# shows 24.20% for the same reason, without owning any of these shares.
+# Tracing the chain under FATA gives 24.52%, matching COFCO Corporation's row.
+# Entering one figure without the chain (24%, 16.2%, 14.18%) gives a
+# different or unsupported answer.
+#
+# Cross-checked with the 2024 annual report (as at 31 December 2024):
+# COFCO Corporation 950,014,304 shares, 24.24%; same chain (70%, 82.16%).
+#
+# Entity ids: PLACE_ROLE / GROUP_ROLE. Terms and proper nouns in capitals.
+
+title: "T19 · COFCO-controlled Mengniu acquires 100% of Bellamy's Australia"
+buyer: HK_Mengniu
+target: AU_Bellamys
+
+transaction:
+  action: acquire_interest
+  target_is_australian: true
+  target_is_mining_entity: false
+
+entities:
+  - id: CN_COFCO
+    name: "COFCO Corporation (中粮集团有限公司)"
+    kind: corporation
+    country: CN
+    gov_status: SGE
+    gov_reason: "FATA s 4 'separate government entity': central state-owned enterprise in which the PRC central government holds a controlling interest. User's characterisation (R1)."
+  - id: COFCO_HK
+    name: "COFCO (Hong Kong) Limited"
+    kind: corporation
+    country: HK
+    gov_status: none
+    gov_reason: "Not itself a government body; held by COFCO Corporation."
+  - id: COFCO_ChinaFoods-Holdings
+    name: "China Foods (Holdings) Limited"
+    kind: corporation
+    gov_status: none
+    gov_reason: "Intermediate holding company in the COFCO chain."
+  - id: COFCO_Farwill
+    name: "Farwill Limited"
+    kind: corporation
+    gov_status: none
+    gov_reason: "Intermediate holding company in the COFCO chain."
+  - id: COFCO_DairyHoldings
+    name: "COFCO Dairy Holdings Limited"
+    kind: corporation
+    gov_status: none
+    gov_reason: "Intermediate holding company in the COFCO chain."
+  - id: COFCO_DairyInvestments
+    name: "COFCO Dairy Investments Limited"
+    kind: corporation
+    gov_status: none
+    gov_reason: "Intermediate holding company in the COFCO chain."
+  - id: COFCO_ProminentAchiever
+    name: "Prominent Achiever Limited"
+    kind: corporation
+    gov_status: none
+    gov_reason: "Intermediate holding company in the COFCO chain."
+  - id: COFCO_WDF
+    name: "WDF Investment Co., Ltd."
+    kind: corporation
+    gov_status: none
+    gov_reason: "Intermediate holding company in the COFCO chain."
+  - id: HK_Mengniu
+    name: "China Mengniu Dairy Company Limited (2319.HK)"
+    kind: corporation
+    country: KY
+    gov_status: none
+    gov_reason: "Listed company incorporated in the Cayman Islands; not itself a government body."
+    note: "Other substantial shareholders in the 2025 report: Arla Foods amba (deemed, through arrangements with COFCO entities), BlackRock 6.94%, Brown Brothers Harriman 5.01%. Not entered: none is a foreign government holding."
+  - id: AU_Bellamys
+    name: "Bellamy's Australia Limited"
+    kind: corporation
+    country: AU
+    gov_status: none
+
+holdings:
+  - {holder: CN_COFCO, held: COFCO_HK, shares_pct: 100, source: "Mengniu AR2025, substantial shareholders fn (1): 'wholly-owned by COFCO Corporation'"}
+  - {holder: COFCO_HK, held: COFCO_ChinaFoods-Holdings, shares_pct: 100, source: "Mengniu AR2025 fn (1): wholly-owned by COFCO (Hong Kong)"}
+  - {holder: COFCO_ChinaFoods-Holdings, held: COFCO_Farwill, shares_pct: 100, source: "Mengniu AR2025 fn (1): wholly-owned by China Foods (Holdings)"}
+  - {holder: COFCO_Farwill, held: COFCO_DairyHoldings, shares_pct: 70, source: "Mengniu AR2025 fn (1): owned by Farwill as to 70%"}
+  - {holder: COFCO_DairyHoldings, held: COFCO_DairyInvestments, shares_pct: 82.16, source: "Mengniu AR2025 fn (1): owned by COFCO Dairy Holdings as to 82.16%"}
+  - {holder: COFCO_DairyInvestments, held: COFCO_ProminentAchiever, shares_pct: 100, source: "Mengniu AR2025 fn (1): wholly-owned by COFCO Dairy Investments"}
+  - {holder: CN_COFCO, held: COFCO_WDF, shares_pct: 100, source: "Mengniu AR2025 fn (1): wholly-owned by COFCO Corporation"}
+  - {holder: COFCO_HK, held: HK_Mengniu, shares_pct: 2.39, source: "Mengniu AR2025: beneficial owner of 92,634,000 shares / 3,878,902,513"}
+  - {holder: COFCO_DairyInvestments, held: HK_Mengniu, shares_pct: 14.18, source: "Mengniu AR2025: beneficial owner of 550,146,260 shares / 3,878,902,513"}
+  - {holder: COFCO_ProminentAchiever, held: HK_Mengniu, shares_pct: 7.63, source: "Mengniu AR2025: beneficial owner of 296,028,044 shares / 3,878,902,513"}
+  - {holder: COFCO_WDF, held: HK_Mengniu, shares_pct: 0.32, source: "Mengniu AR2025: 951,110,304 (COFCO deemed) less 938,808,304 = 12,302,000 shares / 3,878,902,513 (derived)"}
+  - {holder: HK_Mengniu, held: AU_Bellamys, shares_pct: 100, proposed: true, source: "2019 scheme to acquire 100% of Bellamy's (Treasurer media release; Allens)"}

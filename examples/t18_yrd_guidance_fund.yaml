@@ -1,0 +1,81 @@
+# T18 (real fund, hypothetical target): the Yangtze River Delta venture
+# capital guidance fund, a limited partnership under the National Venture
+# Capital Guidance Fund.
+#
+# Public facts (business-registration reports, December 2025 to February 2026):
+# - 长三角创业投资引导基金合伙企业（有限合伙）, registered in Shanghai Pudong on
+#   22 December 2025 with capital of RMB 47.1bn, increased to RMB 55.1bn.
+# - Its general partner is 国投创合长三角（上海）创业投资管理有限公司, whose
+#   shareholders include SDIC, Shanghai SDIC, Pudong Capital, Suzhou Guofa and
+#   Conch Group: all state-owned.
+# - Its partners are the National Venture Capital Guidance Fund, SDIC, Anhui,
+#   Zhejiang (Hangzhou, Ningbo), Shanghai and Suzhou state platforms, Conch Group,
+#   and, from February 2026, ICBC Financial Asset Investment (RMB 3bn), the Jiangsu
+#   strategic emerging industries mother fund (RMB 3bn), the Zhejiang venture
+#   guidance fund and Nanjing Zixin. Shanghai SDIC's asset manager put in RMB 0.5bn.
+#
+# Only three contributions are public (RMB 3bn, 3bn, 0.5bn of 55.1bn). The rest
+# (RMB 48.6bn, 88.20%) is entered as one row: every partner named in the reports
+# is a central or local state-owned entity or government fund, but the split
+# between them is not in free public sources. The result does not depend on the
+# split, because state entities of one country are associates (R6).
+#
+# A limited partnership is entered as its general partner, with each partner's
+# share of distributions held in it (as in T13). The Australian target is
+# hypothetical.
+#
+# Entity ids: PLACE_ROLE. Terms and proper nouns in capitals.
+
+title: "T18 · Yangtze River Delta guidance fund (real partners) buys 12% of an Australian company (hypothetical)"
+buyer: YRD_GuidanceFund-GP
+target: AU_DeepTech
+
+transaction:
+  action: acquire_interest
+  target_is_australian: true
+  target_is_mining_entity: false
+
+entities:
+  - id: CN_ICBC-Investment
+    name: "ICBC Financial Asset Investment Co., Ltd. (工银金融资产投资有限公司)"
+    kind: corporation
+    country: CN
+    gov_status: SGE
+    gov_reason: "Wholly owned by ICBC, in which PRC central government entities hold a controlling interest. User's characterisation (R1)."
+  - id: JS_SEI-MotherFund
+    name: "Jiangsu Strategic Emerging Industries Mother Fund Co., Ltd. (江苏省战略性新兴产业母基金有限公司)"
+    kind: corporation
+    country: CN
+    gov_status: SGE
+    gov_reason: "Jiangsu provincial government fund, managed by a Jiangsu Hi-Tech Investment (江苏高投) subsidiary. User's characterisation (R1)."
+  - id: SH_SDIC-AM
+    name: "Shanghai SDIC asset management arm (上海国投资管)"
+    kind: corporation
+    country: CN
+    gov_status: SGE
+    gov_reason: "Subsidiary of Shanghai State-owned Capital Investment Co. (上海国投), a Shanghai SASAC enterprise. User's characterisation (R1)."
+  - id: CN_OtherStateLPs
+    name: "Other partners (National VC Guidance Fund, SDIC, Anhui, Zhejiang, Shanghai, Suzhou platforms, Conch Group and others)"
+    kind: corporation
+    country: CN
+    gov_status: SGE
+    gov_reason: "Every partner named in the registration reports is a central or local state-owned entity or government fund; individual amounts are not public. One row for the group. User's characterisation (R1)."
+  - id: YRD_GuidanceFund-GP
+    name: "国投创合长三角（上海）创业投资管理有限公司, as GP of the Yangtze River Delta VC Guidance Fund LP"
+    kind: general_partner
+    capacity_of: "长三角创业投资引导基金合伙企业（有限合伙）"
+    country: CN
+    gov_status: none
+    gov_reason: "Manager owned by state entities, but not itself a government body; status as an investor is for the engine to work out."
+  - id: AU_DeepTech
+    name: "Australian deep-tech company (hypothetical)"
+    kind: corporation
+    country: AU
+    gov_status: none
+
+holdings:
+  - {holder: CN_ICBC-Investment, held: YRD_GuidanceFund-GP, distribution_pct: 5.44, source: "RMB 3bn of RMB 55.1bn (Feb 2026 capital increase reports)"}
+  - {holder: JS_SEI-MotherFund, held: YRD_GuidanceFund-GP, distribution_pct: 5.44, source: "RMB 3bn of RMB 55.1bn (Feb 2026 capital increase reports)"}
+  - {holder: SH_SDIC-AM, held: YRD_GuidanceFund-GP, distribution_pct: 0.91, source: "RMB 0.5bn of RMB 55.1bn (Shanghai SDIC announcement, Dec 2025)"}
+  - {holder: CN_OtherStateLPs, held: YRD_GuidanceFund-GP, distribution_pct: 88.21, source: "Remainder: RMB 48.6bn of RMB 55.1bn (88.20%, rounded so the rows total 100%); split not public"}
+  - {holder: YRD_GuidanceFund-GP, held: AU_DeepTech, shares_pct: 12, proposed: true, source: "Hypothetical transaction"}
