@@ -3,10 +3,13 @@
 # investor under FATR s 17(1)(b)(i), because the two SASACs are associates
 # under FATA s 6(1)(l)(i) and together hold 22%.
 
+# Entity ids: PLACE_ROLE. Terms and proper nouns in capitals (SASAC, SOE, HK, AU);
+# "City-SZ" stands for a hypothetical city, here Shenzhen; "City-GZ" for Ganzhou.
+
 title: "T04 - Two municipal SASACs below 20% each"
 
 entities:
-  - id: sz_sasac
+  - id: City-SZ_SASAC
     name: "Shenzhen SASAC (深圳市国资委)"
     kind: government
     country: CN
@@ -15,7 +18,7 @@ entities:
       FATA s 4 'foreign government' para (c): a special body directly under,
       and part of the body politic of, the Shenzhen Municipal People's Government.
 
-  - id: gz_sasac
+  - id: City-GZ_SASAC
     name: "Ganzhou SASAC (赣州市国资委)"
     kind: government
     country: CN
@@ -24,18 +27,18 @@ entities:
       FATA s 4 'foreign government' para (c): part of the body politic of the
       Ganzhou Municipal People's Government.
 
-  - id: company_d
+  - id: Company-D
     name: "D Co"
     kind: corporation
     country: CN
 
 holdings:
-  - holder: sz_sasac
-    held: company_d
+  - holder: City-SZ_SASAC
+    held: Company-D
     shares_pct: 12
     source: "Hypothetical case, rules document Part 2 Q4"
 
-  - holder: gz_sasac
-    held: company_d
+  - holder: City-GZ_SASAC
+    held: Company-D
     shares_pct: 10
     source: "Hypothetical case, rules document Part 2 Q4"

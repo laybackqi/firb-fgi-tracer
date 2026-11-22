@@ -28,7 +28,7 @@ def test_offshore_example_report_has_conclusion_chain_and_diagram():
 
 def test_input_errors_stop_the_report():
     graph = load_yaml(EXAMPLES / "hk_holdco_miner.yaml")
-    graph.entities["sz_sasac"].country = None
+    graph.entities["City-SZ_SASAC"].country = None
     report = render_markdown(graph)
     assert "## The input has errors" in report
     assert "## Conclusion" not in report
@@ -38,3 +38,12 @@ def test_command_line_writes_a_file(tmp_path):
     out = tmp_path / "report.md"
     assert main([str(EXAMPLES / "hk_holdco_miner.yaml"), "-o", str(out)]) == 0
     assert "**Notifiable.**" in out.read_text(encoding="utf-8")
+
+
+def test_uncertain_entities_make_the_conclusion_provisional():
+    from firb_tracer.model import GovStatus
+    graph = load_yaml(EXAMPLES / "hk_holdco_miner.yaml")
+    assert "Provisional" not in render_markdown(graph)
+    graph.entities["City-SZ_SASAC"].gov_status = GovStatus.UNCERTAIN
+    conclusion = render_markdown(graph).split("## 1.")[0]
+    assert "**Provisional.**" in conclusion and "Shenzhen SASAC" in conclusion

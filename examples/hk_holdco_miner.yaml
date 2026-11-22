@@ -3,9 +3,12 @@
 # that holds 12% of an Australian miner. No Australian shares change hands,
 # yet under FATA s 19 the buyer is taken to hold the full 12%.
 
+# Entity ids: PLACE_ROLE. Terms and proper nouns in capitals (SASAC, SOE, HK, AU);
+# "City-SZ" stands for a hypothetical city, here Shenzhen.
+
 title: "Shenzhen SOE buys 25% of a Hong Kong holdco with 12% of an Australian miner"
-buyer: sz_soe
-target: au_miner
+buyer: City-SZ_SOE
+target: AU_Miner
 
 transaction:
   action: acquire_interest
@@ -13,41 +16,41 @@ transaction:
   target_is_mining_entity: true
 
 entities:
-  - id: sz_sasac
+  - id: City-SZ_SASAC
     name: "Shenzhen SASAC"
     kind: government
     country: CN
     gov_status: FG
     gov_reason: "FATA s 4 'foreign government' para (c): part of the body politic of Shenzhen Municipal People's Government"
 
-  - id: sz_soe
+  - id: City-SZ_SOE
     name: "Shenzhen Resources Group (hypothetical)"
     kind: corporation
     country: CN
 
-  - id: hk_holdco
+  - id: HK_HoldCo
     name: "HK Holdco Ltd (hypothetical)"
     kind: corporation
     country: HK
 
-  - id: au_miner
+  - id: AU_Miner
     name: "Australian Rare Earths Ltd (hypothetical)"
     kind: corporation
     country: AU
 
 holdings:
-  - holder: sz_sasac
-    held: sz_soe
+  - holder: City-SZ_SASAC
+    held: City-SZ_SOE
     shares_pct: 100
     source: "Hypothetical"
 
-  - holder: sz_soe
-    held: hk_holdco
+  - holder: City-SZ_SOE
+    held: HK_HoldCo
     shares_pct: 25
     proposed: true
     source: "Hypothetical share purchase agreement"
 
-  - holder: hk_holdco
-    held: au_miner
+  - holder: HK_HoldCo
+    held: AU_Miner
     shares_pct: 12
     source: "Hypothetical ASX substantial holder notice"

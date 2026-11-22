@@ -14,7 +14,7 @@ Markdown viewers draw as a picture.
 from __future__ import annotations
 
 from .fgi import Finding, determine_fgi
-from .model import OwnershipGraph
+from .model import GovStatus, OwnershipGraph
 from .notification import Decision, assess
 
 LEGISLATION = (
@@ -98,6 +98,20 @@ def _mermaid(graph: OwnershipGraph, findings: dict[str, Finding]) -> list[str]:
     return lines
 
 
+def uncertain_entities(graph: OwnershipGraph) -> list[str]:
+    """Entities whose government status the user has not yet characterised (R1)."""
+    return [e.id for e in graph.entities.values() if e.gov_status is GovStatus.UNCERTAIN]
+
+
+def provisional_note(graph: OwnershipGraph, pending: list[str]) -> str:
+    """Why a result with uncharacterised entities is only provisional."""
+    names = ", ".join(_name(graph, e) for e in pending)
+    which = "this entity" if len(pending) == 1 else f"these {len(pending)} entities"
+    return (f"No government status has been given for {which}: {names}. This result treats them as "
+            "neither foreign governments nor separate government entities. Characterise each one (FG, SGE "
+            "or none, with a reason) before relying on the result (R1).")
+
+
 def render_markdown(graph: OwnershipGraph) -> str:
     """The full report for a structure with a buyer and a transaction."""
     findings = determine_fgi(graph)
@@ -120,9 +134,13 @@ def render_markdown(graph: OwnershipGraph) -> str:
         out.append(f"**Notifiable.** The proposed action by {_name(graph, graph.buyer)} is a significant "
                    "and notifiable action. FIRB approval is required before it is taken.")
     else:
-        out.append(f"**Not notifiable under FATR s 56** on the facts entered, subject to the matters "
+        out.append("**Not notifiable under FATR s 56** on the facts entered, subject to the matters "
                    "for human judgment below.")
     out.append("")
+    pending = uncertain_entities(graph)
+    if pending:
+        out.append(f"**Provisional.** {provisional_note(graph, pending)}")
+        out.append("")
 
     # --- Part 1 --------------------------------------------------------------
     out += ["## 1. Statutory conclusions", ""]

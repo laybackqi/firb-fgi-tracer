@@ -27,12 +27,12 @@ def test_t04_loads_and_is_valid():
     graph = load_yaml(EXAMPLES / "t04_same_country.yaml")
     assert len(graph.entities) == 3
     assert len(graph.holdings) == 2
-    sz = graph.entities["sz_sasac"]
+    sz = graph.entities["City-SZ_SASAC"]
     assert sz.kind is EntityKind.GOVERNMENT
     assert sz.gov_status is GovStatus.FG
     assert sz.is_government
-    assert not graph.entities["company_d"].is_government
-    assert [h.holder for h in graph.holders_of("company_d")] == ["sz_sasac", "gz_sasac"]
+    assert not graph.entities["Company-D"].is_government
+    assert [h.holder for h in graph.holders_of("Company-D")] == ["City-SZ_SASAC", "City-GZ_SASAC"]
     assert errors(graph) == []
 
 
@@ -96,3 +96,27 @@ def test_veto_and_missing_source_are_flagged():
     messages = " ".join(i.message for i in warnings(from_dict(data)))
     assert "s 22(4)" in messages
     assert "R18" in messages
+
+
+def _two_holders(proposed_pct, existing_other=75.0):
+    from firb_tracer.model import from_dict
+    return from_dict({
+        "title": "t",
+        "entities": [{"id": i, "name": i, "kind": "corporation"} for i in ("a", "b", "c")],
+        "holdings": [
+            {"holder": "a", "held": "c", "shares_pct": 25, "source": "s"},
+            {"holder": "b", "held": "c", "shares_pct": existing_other, "source": "s"},
+            {"holder": "a", "held": "c", "shares_pct": proposed_pct, "proposed": True, "source": "s"},
+        ],
+    })
+
+
+def test_buying_from_an_existing_holder_is_a_warning_not_an_error():
+    issues = _two_holders(15).validate()
+    assert not [i for i in issues if i.level == "error"]
+    assert any("reduction is not modelled" in i.message for i in issues if i.level == "warning")
+
+
+def test_existing_holdings_over_100_are_still_an_error():
+    issues = _two_holders(15, existing_other=80).validate()
+    assert any("more than 100%" in i.message for i in issues if i.level == "error")

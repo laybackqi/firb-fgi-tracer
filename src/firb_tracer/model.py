@@ -16,7 +16,7 @@ trustee of two different trusts is two separate nodes (rule R24).
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, fields, replace
+from dataclasses import MISSING, dataclass, field, fields, replace
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -227,7 +227,8 @@ class OwnershipGraph:
             if e.control_indicators and not e.acts_on_wishes_of:
                 warn(f"{e.id}: non-equity control indicators present but no controller named; review s 6(1)(f) (R8)")
 
-        totals: dict[str, float] = {}
+        totals: dict[str, float] = {}  # existing holdings only
+        after: dict[str, float] = {}  # existing and proposed
         for h in self.holdings:
             where = f"{h.holder} -> {h.held}"
             if h.holder not in ids:
@@ -252,11 +253,20 @@ class OwnershipGraph:
                 warn(f"{where}: veto counted as 20% of potential voting power on the broad reading of s 22(4) (R15)")
             if not h.source:
                 warn(f"{where}: no source given for these figures (R18)")
-            totals[h.held] = totals.get(h.held, 0.0) + h.shares_pct
+            if not h.proposed:
+                totals[h.held] = totals.get(h.held, 0.0) + h.shares_pct
+            after[h.held] = after.get(h.held, 0.0) + h.shares_pct
 
         for held, total in totals.items():
             if total > 100.0001:
                 err(f"{held}: issued shares held add up to {total:g}%, more than 100%")
+        # Proposed holdings often come out of an existing holder's shares. The
+        # model has no disposals, so the seller's reduction is not shown and the
+        # total after the transaction may pass 100% on correct input.
+        for held, total in after.items():
+            if total > 100.0001 and totals.get(held, 0.0) <= 100.0001:
+                warn(f"{held}: with the proposed holdings, issued shares add up to {total:g}%; "
+                     "if the shares come from an existing holder, that holder's reduction is not modelled")
 
         return issues
 
@@ -352,3 +362,49 @@ def load_yaml(path: str | Path) -> OwnershipGraph:
     if not isinstance(data, dict):
         raise InputError(f"{path}: expected a mapping at the top level")
     return from_dict(data)
+
+
+# --------------------------------------------------------------------------
+# Writing back to YAML
+# --------------------------------------------------------------------------
+
+
+def _default(f: Any) -> Any:
+    if f.default_factory is not MISSING:
+        return f.default_factory()
+    return f.default
+
+
+def _plain(obj: Any) -> dict[str, Any]:
+    """A dataclass as a dict, leaving out fields that still hold their default."""
+    out: dict[str, Any] = {}
+    for f in fields(obj):
+        value = getattr(obj, f.name)
+        if f.default is not MISSING or f.default_factory is not MISSING:
+            if value == _default(f):
+                continue
+        if isinstance(value, Enum):
+            value = value.value
+        elif isinstance(value, list):
+            value = [_plain(v) if hasattr(v, "__dataclass_fields__") else v for v in value]
+        out[f.name] = value
+    return out
+
+
+def to_dict(graph: OwnershipGraph) -> dict[str, Any]:
+    """The inverse of from_dict: a graph as plain data, ready for YAML."""
+    data: dict[str, Any] = {"title": graph.title}
+    if graph.buyer:
+        data["buyer"] = graph.buyer
+    if graph.target:
+        data["target"] = graph.target
+    if graph.transaction is not None:
+        data["transaction"] = _plain(graph.transaction)
+    data["entities"] = [_plain(e) for e in graph.entities.values()]
+    data["holdings"] = [_plain(h) for h in graph.holdings]
+    return data
+
+
+def dump_yaml(graph: OwnershipGraph) -> str:
+    """A graph as YAML text that load_yaml can read back."""
+    return yaml.safe_dump(to_dict(graph), allow_unicode=True, sort_keys=False, width=100)
